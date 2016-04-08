@@ -6,6 +6,7 @@ from tweepy import Stream
 from tweepy import API
 import configparser
 from json import loads
+from random import randint
 
 config = configparser.ConfigParser()
 config.read('access.properties')
@@ -18,10 +19,19 @@ access_token_secret=config.get('twitter', 'access_token_secret')
 
 class StdOutListener(StreamListener):
     def on_data(self, data):
-        data = loads(data)
-        api.create_favorite(data['id'])
-        if 'optreden' in data['text']:
-            api.retweet(data['id'])
+        try:
+            data = loads(data)
+            print(data['user']['screen_name'], data['text'])
+            print("\tcreating favorite")
+            api.create_favorite(data['id'])
+            if 'optreden' in data['text']:
+                print("\tretweeting")
+                api.retweet(data['id'])
+            if randint(1, 10) > 8:
+                print("\tmaking friendship")       
+                api.create_friendship(user_id=data['user']['screen_name'])
+        except:
+          pass
         return True
 
     def on_error(self, status):
@@ -37,4 +47,5 @@ if __name__ == '__main__':
     stream = Stream(auth, l)
     stream.filter(track=['jazz antwerpen', 'jazz leuven', 'jazz gent', 'jazz brussel', 'jazz hasselt', 'jazz brugge',
                          'jazz charleroi', 'jazz liege', 'jazz mons', 'jazz namur', 'jazz bruxelles', 'jazz big band',
-                         'big band optreden'])
+                         'big band optreden', 'jazz belgie', 'jazz vlaanderen', 'jazz wallonie', 
+                         'jazz bxl'])
